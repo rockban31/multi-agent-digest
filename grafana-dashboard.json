@@ -1,0 +1,24 @@
+{
+  "title": "Multi-Agent Digest Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Run Success",
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+      "targets": [
+        {"expr": "multi_agent_digest_run_success", "legendFormat": "success"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Formatter Items Rendered",
+      "gridPos": {"h": 8, "w": 18, "x": 6, "y": 0},
+      "targets": [
+        {"expr": "multi_agent_digest_formatter_items_rendered", "legendFormat": "items"}
+      ]
+    }
+  ]
+}

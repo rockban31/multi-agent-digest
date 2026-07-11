@@ -1,0 +1,65 @@
+services:
+  ingestor:
+    build: ./agents/ingestor
+    container_name: agent_ingestor
+    volumes:
+      - ./data:/data
+      - ./output:/output
+    environment:
+      - PROMETHEUS_METRICS=true
+      - METRICS_PORT=8000
+      - METRICS_KEEPALIVE=false
+    restart: "no"
+
+  summarizer:
+    build: ./agents/summarizer
+    container_name: agent_summarizer
+    environment:
+      - KIMCHI_API_KEY=${KIMCHI_API_KEY}
+      - KIMCHI_MODEL=${KIMCHI_MODEL:-kimi-k2.7}
+      - PROMETHEUS_METRICS=true
+      - METRICS_PORT=8000
+      - METRICS_KEEPALIVE=false
+    depends_on:
+      ingestor:
+        condition: service_completed_successfully
+    volumes:
+      - ./data:/data
+      - ./output:/output
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    restart: "no"
+
+  prioritizer:
+    build: ./agents/prioritizer
+    container_name: agent_prioritizer
+    depends_on:
+      summarizer:
+        condition: service_completed_successfully
+    volumes:
+      - ./data:/data
+      - ./output:/output
+    environment:
+      - PROMETHEUS_METRICS=true
+      - METRICS_PORT=8000
+      - METRICS_KEEPALIVE=false
+    restart: "no"
+
+  formatter:
+    build: ./agents/formatter
+    container_name: agent_formatter
+    depends_on:
+      prioritizer:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+      - ./output:/output
+    environment:
+      - PROMETHEUS_METRICS=true
+      - METRICS_PORT=8000
+      - METRICS_KEEPALIVE=true
+    restart: "no"
